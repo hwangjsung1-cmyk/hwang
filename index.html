@@ -1,9 +1,104 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#173b63"><meta name="description" content="상속재산 조사 및 상속세 시뮬레이션 계산기"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><title>상속세 계산기</title><style>
-:root{font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;color:#172536;background:#f3f6fa}*{box-sizing:border-box}body{margin:0;padding:0 0 35px}.top{background:#173b63;color:white;padding:22px 16px 18px}.top h1{font-size:21px;margin:0 0 6px}.top p{font-size:12px;margin:0;opacity:.85}main{max-width:760px;margin:auto;padding:12px}.tabs{display:flex;gap:6px;overflow:auto;padding:4px 0 10px}button{border:1px solid #cbd5e1;border-radius:9px;background:white;padding:10px 12px;font-size:13px;white-space:nowrap;color:#172536}button.active,.primary{background:#173b63;color:white;border-color:#173b63}.panel{display:none;background:white;border:1px solid #dce3eb;border-radius:12px;padding:14px;margin-bottom:12px}.panel.show{display:block}.panel h2{font-size:16px;margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}label{font-size:12px;color:#465568;display:block}input,select{width:100%;margin-top:5px;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:15px;background:white;color:#172536}.row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #edf0f4;font-size:13px}.row strong{text-align:right}.muted{font-size:12px;color:#697789;line-height:1.55}.asset{display:grid;grid-template-columns:1fr 1fr auto;gap:7px;align-items:end;margin:8px 0}.asset button{padding:9px}.total{font-size:20px;font-weight:750;color:#173b63}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.checks label{display:flex;gap:8px;align-items:flex-start;margin:10px 0}.checks input{width:17px;margin:0}.warning{background:#fff8e7;border:1px solid #f0d99c;border-radius:9px;padding:10px;margin:7px 0;font-size:12px}footer{max-width:760px;margin:auto;padding:0 14px;color:#6b7785;font-size:11px;line-height:1.6}@media(max-width:420px){.grid{grid-template-columns:1fr 1fr}.asset{grid-template-columns:1fr 1fr auto}.asset input{min-width:0}}@media print{.top,.tabs,.actions,footer{display:none!important}.panel{display:block!important;break-inside:avoid}body{background:white}}
-</style></head><body><header class="top"><h1>상속세 계산기</h1><p>상속재산 조사 · 과세가액 · 공제 · 세액 시뮬레이션</p></header><main><div class="tabs" id="tabs"><button class="active" data-tab="p1">1. 기본·재산</button><button data-tab="p2">2. 과세가액</button><button data-tab="p3">3. 상속공제</button><button data-tab="p4">4. 세액</button><button data-tab="p5">5. 결과</button></div>
-<section id="p1" class="panel show"><h2>피상속인 기본정보</h2><div class="grid"><label>피상속인 성명<input id="name" autocomplete="off"></label><label>상속개시일<input id="date" type="date"></label><label>거주자 여부<select id="resident"><option value="yes">거주자</option><option value="no">비거주자</option></select></label><label>배우자 생존 여부<select id="spouse"><option value="yes">생존</option><option value="no">없음</option></select></label></div><h2 style="margin-top:18px">본래의 상속재산</h2><div id="assets"></div><div class="actions"><button class="primary" id="addAsset">＋ 재산 추가</button></div><div class="row"><b>본래 상속재산 합계</b><strong id="assetTotal">0원</strong></div><h2 style="margin-top:18px">간주·추정상속재산 및 사전증여</h2><div class="grid"><label>보험금<input id="insurance" type="number" min="0" value="0"></label><label>퇴직금 등<input id="retirement" type="number" min="0" value="0"></label><label>신탁재산<input id="trust" type="number" min="0" value="0"></label><label>추정상속재산<input id="deemed" type="number" min="0" value="0"></label><label>상속인 사전증여<input id="giftHeir" type="number" min="0" value="0"></label><label>비상속인 사전증여<input id="giftNonHeir" type="number" min="0" value="0"></label><label>특례 증여재산<input id="giftSpecial" type="number" min="0" value="0"></label></div><p class="muted">사전증여 합산기간은 일반적으로 상속인 10년, 상속인이 아닌 자 5년입니다. 창업자금·가업승계 증여 등 특례재산은 별도 규정을 검토하십시오.</p><h2 style="margin-top:18px">재산조사 체크리스트</h2><div class="checks" id="checks"></div></section>
-<section id="p2" class="panel"><h2>상속세 과세가액</h2><div class="grid"><label>비과세 재산<input id="exempt" type="number" value="0" min="0"></label><label>과세가액 불산입액<input id="excluded" type="number" value="0" min="0"></label><label>공과금<input id="publicCharges" type="number" value="0" min="0"></label><label>장례비용<input id="funeral" type="number" value="0" min="0"></label><label>채무<input id="debt" type="number" value="0" min="0"></label><label>감정평가수수료 등<input id="valuationFee" type="number" value="0" min="0"></label></div><div id="estateDetails" style="margin-top:12px"></div><div class="row"><b>상속세 과세가액</b><strong class="total" id="estateValue">0원</strong></div></section>
-<section id="p3" class="panel"><h2>상속공제</h2><div class="grid"><label>기초공제<input id="basicDed" type="number" value="200000000" min="0"></label><label>기타 인적공제 합계<input id="personalDed" type="number" value="0" min="0"></label></div><label style="margin-top:10px">기초·인적공제 또는 일괄공제<select id="deductionChoice"><option value="best">유리한 금액 선택(단순 비교)</option><option value="lump">일괄공제 5억원</option><option value="actual">기초공제＋인적공제</option></select></label><div class="grid" style="margin-top:10px"><label>배우자상속공제 적용액<input id="spouseDed" type="number" value="0" min="0"></label><label>금융재산상속공제<input id="financialDed" type="number" value="0" min="0"></label><label>가업상속공제<input id="businessDed" type="number" value="0" min="0"></label><label>영농상속공제<input id="farmDed" type="number" value="0" min="0"></label><label>동거주택상속공제<input id="homeDed" type="number" value="0" min="0"></label><label>기타 상속공제<input id="otherDed" type="number" value="0" min="0"></label><label>상속공제 종합한도액<input id="deductionLimit" type="number" min="0" placeholder="직접 산정하여 입력"></label></div><p class="muted">배우자상속공제 및 상속공제 종합한도는 법정 요건에 따라 별도 산정해야 합니다. 종합한도 미입력 시 계산 결과는 확정값이 아닙니다.</p><div class="row"><b>적용 상속공제 합계(입력액 기준)</b><strong id="deductionTotal">0원</strong></div></section>
-<section id="p4" class="panel"><h2>산출세액 및 세액공제</h2><div class="row"><span>과세표준</span><strong id="taxBase">0원</strong></div><div class="row"><span>적용세율 / 누진공제</span><strong id="taxRate">10% / 0원</strong></div><div class="row"><b>산출세액</b><strong id="calculatedTax">0원</strong></div><div class="grid" style="margin-top:12px"><label>세대생략 할증세액<input id="generationSurcharge" type="number" value="0" min="0"></label><label>증여세액공제<input id="giftTaxCredit" type="number" value="0" min="0"></label><label>단기재상속세액공제<input id="shortReinheritCredit" type="number" value="0" min="0"></label><label>외국납부세액공제<input id="foreignTaxCredit" type="number" value="0" min="0"></label><label>기타 세액공제<input id="otherCredit" type="number" value="0" min="0"></label><label>신고세액공제율(참고용 %)<input id="filingRate" type="number" value="3" min="0" max="100" step="0.1"></label><label>가산세<input id="penalty" type="number" value="0" min="0"></label><label>기납부세액<input id="prepaid" type="number" value="0" min="0"></label></div><p class="muted">세액공제·신고세액공제는 법정 공제대상 세액과 요건에 따라 산정해야 합니다. 신고세액공제율 입력값은 단순 참고 계산에만 사용됩니다.</p></section>
-<section id="p5" class="panel"><h2>계산 결과</h2><div class="muted">입력값 기준 예상 납부세액</div><div class="total" style="font-size:28px;margin:6px 0 14px" id="finalTax">0원</div><div id="resultDetails"></div><h2 style="margin-top:18px">자동 점검 사항</h2><div id="warnings"></div><div class="actions"><button class="primary" id="print">인쇄 / PDF 저장</button><button id="export">입력자료 백업(JSON)</button><button id="reset">전체 초기화</button></div></section></main><footer>주의: 본 프로그램은 검토·교육용 시뮬레이션입니다. 상속개시일 현재 법령, 재산별 평가, 공제요건 및 한도를 검토한 세무전문가의 확인 없이 신고세액 확정에 사용하지 마십시오. 입력자료는 이 기기의 브라우저 저장소에 보관됩니다.</footer><script src="app.js"></script><script>if("serviceWorker"in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}</script></body></html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173b63">
+<meta name="description" content="상속재산 조사 및 상속세 시뮬레이션 계산기">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<title>상속세 계산기</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;color:#172536;background:#f3f6fa}
+*{box-sizing:border-box}body{margin:0;padding:0 0 35px}.top{background:#173b63;color:white;padding:22px 16px 18px}
+.top h1{font-size:21px;margin:0 0 6px}.top p{font-size:12px;margin:0;opacity:.85}
+main{max-width:760px;margin:auto;padding:12px}.tabs{display:flex;gap:6px;overflow:auto;padding:4px 0 10px}
+button{border:1px solid #cbd5e1;border-radius:9px;background:white;padding:10px 12px;font-size:13px;white-space:nowrap;color:#172536}
+button.active,.primary{background:#173b63;color:white;border-color:#173b63}
+.panel{display:none;background:white;border:1px solid #dce3eb;border-radius:12px;padding:14px;margin-bottom:12px}
+.panel.show{display:block}.panel h2{font-size:16px;margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+label{font-size:12px;color:#465568;display:block}input,select{width:100%;margin-top:5px;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:15px;background:white;color:#172536}
+.row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #edf0f4;font-size:13px}
+.row strong{text-align:right}.muted{font-size:12px;color:#697789;line-height:1.55}
+.asset{display:grid;grid-template-columns:1fr 1fr auto;gap:7px;align-items:end;margin:8px 0}
+.asset button{padding:9px}.total{font-size:20px;font-weight:750;color:#173b63}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.checks label{display:flex;gap:8px;align-items:flex-start;margin:10px 0}.checks input{width:17px;margin:0}
+.warning{background:#fff8e7;border:1px solid #f0d99c;border-radius:9px;padding:10px;margin:7px 0;font-size:12px}
+footer{max-width:760px;margin:auto;padding:0 14px;color:#6b7785;font-size:11px;line-height:1.6}
+@media(max-width:420px){.grid{grid-template-columns:1fr 1fr}.asset{grid-template-columns:1fr 1fr auto}.asset input{min-width:0}}
+@media print{.top,.tabs,.actions,footer{display:none!important}.panel{display:block!important;break-inside:avoid}body{background:white}}
+</style>
+</head>
+<body>
+<header class="top"><h1>상속세 계산기</h1><p>상속재산 조사 · 과세가액 · 공제 · 세액 시뮬레이션</p></header>
+<main>
+<div class="tabs" id="tabs">
+<button class="active" data-tab="p1">1. 기본·재산</button><button data-tab="p2">2. 과세가액</button><button data-tab="p3">3. 상속공제</button><button data-tab="p4">4. 세액</button><button data-tab="p5">5. 결과</button>
+</div>
+<section id="p1" class="panel show">
+<h2>피상속인 기본정보</h2><div class="grid">
+<label>피상속인 성명<input id="name" autocomplete="off"></label>
+<label>상속개시일<input id="date" type="date"></label>
+<label>거주자 여부<select id="resident"><option value="yes">거주자</option><option value="no">비거주자</option></select></label>
+<label>배우자 생존 여부<select id="spouse"><option value="yes">생존</option><option value="no">없음</option></select></label>
+</div>
+<h2 style="margin-top:18px">본래의 상속재산</h2><div id="assets"></div>
+<div class="actions"><button class="primary" id="addAsset">＋ 재산 추가</button></div>
+<div class="row"><b>본래 상속재산 합계</b><strong id="assetTotal">0원</strong></div>
+<h2 style="margin-top:18px">간주·추정상속재산 및 사전증여</h2><div class="grid">
+<label>보험금<input id="insurance" type="number" min="0" value="0"></label>
+<label>퇴직금 등<input id="retirement" type="number" min="0" value="0"></label>
+<label>신탁재산<input id="trust" type="number" min="0" value="0"></label>
+<label>추정상속재산<input id="deemed" type="number" min="0" value="0"></label>
+<label>상속인 사전증여<input id="giftHeir" type="number" min="0" value="0"></label>
+<label>비상속인 사전증여<input id="giftNonHeir" type="number" min="0" value="0"></label>
+<label>특례 증여재산<input id="giftSpecial" type="number" min="0" value="0"></label>
+</div><p class="muted">사전증여 합산기간은 일반적으로 상속인 10년, 상속인이 아닌 자 5년입니다. 창업자금·가업승계 증여 등 특례재산은 별도 규정을 검토하십시오.</p>
+<h2 style="margin-top:18px">재산조사 체크리스트</h2><div class="checks" id="checks"></div>
+</section>
+<section id="p2" class="panel"><h2>상속세 과세가액</h2><div class="grid">
+<label>비과세 재산<input id="exempt" type="number" value="0" min="0"></label>
+<label>과세가액 불산입액<input id="excluded" type="number" value="0" min="0"></label>
+<label>공과금<input id="publicCharges" type="number" value="0" min="0"></label>
+<label>장례비용<input id="funeral" type="number" value="0" min="0"></label>
+<label>채무<input id="debt" type="number" value="0" min="0"></label>
+<label>감정평가수수료 등<input id="valuationFee" type="number" value="0" min="0"></label>
+</div><div id="estateDetails" style="margin-top:12px"></div><div class="row"><b>상속세 과세가액</b><strong class="total" id="estateValue">0원</strong></div></section>
+<section id="p3" class="panel"><h2>상속공제</h2>
+<div class="grid">
+<label>기초공제<input id="basicDed" type="number" value="200000000" min="0"></label>
+<label>기타 인적공제 합계<input id="personalDed" type="number" value="0" min="0"></label>
+</div>
+<label style="margin-top:10px">기초·인적공제 또는 일괄공제<select id="deductionChoice"><option value="best">유리한 금액 선택(단순 비교)</option><option value="lump">일괄공제 5억원</option><option value="actual">기초공제＋인적공제</option></select></label>
+<div class="grid" style="margin-top:10px">
+<label>배우자상속공제 적용액<input id="spouseDed" type="number" value="0" min="0"></label>
+<label>금융재산상속공제<input id="financialDed" type="number" value="0" min="0"></label>
+<label>가업상속공제<input id="businessDed" type="number" value="0" min="0"></label>
+<label>영농상속공제<input id="farmDed" type="number" value="0" min="0"></label>
+<label>동거주택상속공제<input id="homeDed" type="number" value="0" min="0"></label>
+<label>기타 상속공제<input id="otherDed" type="number" value="0" min="0"></label>
+<label>상속공제 종합한도액<input id="deductionLimit" type="number" min="0" placeholder="직접 산정하여 입력"></label>
+</div><p class="muted">배우자상속공제 및 상속공제 종합한도는 법정 요건에 따라 별도 산정해야 합니다. 종합한도 미입력 시 계산 결과는 확정값이 아닙니다.</p>
+<div class="row"><b>적용 상속공제 합계(입력액 기준)</b><strong id="deductionTotal">0원</strong></div></section>
+<section id="p4" class="panel"><h2>산출세액 및 세액공제</h2>
+<div class="row"><span>과세표준</span><strong id="taxBase">0원</strong></div><div class="row"><span>적용세율 / 누진공제</span><strong id="taxRate">10% / 0원</strong></div><div class="row"><b>산출세액</b><strong id="calculatedTax">0원</strong></div>
+<div class="grid" style="margin-top:12px">
+<label>세대생략 할증세액<input id="generationSurcharge" type="number" value="0" min="0"></label>
+<label>증여세액공제<input id="giftTaxCredit" type="number" value="0" min="0"></label>
+<label>단기재상속세액공제<input id="shortReinheritCredit" type="number" value="0" min="0"></label>
+<label>외국납부세액공제<input id="foreignTaxCredit" type="number" value="0" min="0"></label>
+<label>기타 세액공제<input id="otherCredit" type="number" value="0" min="0"></label>
+<label>신고세액공제율(참고용 %)<input id="filingRate" type="number" value="3" min="0" max="100" step="0.1"></label>
+<label>가산세<input id="penalty" type="number" value="0" min="0"></label>
+<label>기납부세액<input id="prepaid" type="number" value="0" min="0"></label>
+</div><p class="muted">세액공제·신고세액공제는 법정 공제대상 세액과 요건에 따라 산정해야 합니다. 신고세액공제율 입력값은 단순 참고 계산에만 사용됩니다.</p>
+</section>
+<section id="p5" class="panel"><h2>계산 결과</h2><div class="muted">입력값 기준 예상 납부세액</div><div class="total" style="font-size:28px;margin:6px 0 14px" id="finalTax">0원</div>
+<div id="resultDetails"></div><h2 style="margin-top:18px">자동 점검 사항</h2><div id="warnings"></div>
+<div class="actions"><button class="primary" id="print">인쇄 / PDF 저장</button><button id="export">입력자료 백업(JSON)</button><button id="reset">전체 초기화</button></div>
+</section>
+</main>
+<footer>주의: 본 프로그램은 검토·교육용 시뮬레이션입니다. 상속개시일 현재 법령, 재산별 평가, 공제요건 및 한도를 검토한 세무전문가의 확인 없이 신고세액 확정에 사용하지 마십시오. 입력자료는 이 기기의 브라우저 저장소에 보관됩니다.</footer>
+<script src="app.js"></script><script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));}</script>
+</body></html>
